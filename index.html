@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>4-week work plan</title>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f5f0;
+    --bg-tertiary: #faf9f5;
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b6a65;
+    --text-tertiary: #96948d;
+    --border-tertiary: rgba(0, 0, 0, 0.08);
+    --border-secondary: rgba(0, 0, 0, 0.15);
+    --border-primary: rgba(0, 0, 0, 0.25);
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --green: #1D9E75;
+    --blue: #378ADD;
+    --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1f1e1b;
+      --bg-secondary: #2a2927;
+      --bg-tertiary: #1a1916;
+      --text-primary: #f0efe9;
+      --text-secondary: #b0ada5;
+      --text-tertiary: #7a786f;
+      --border-tertiary: rgba(255, 255, 255, 0.1);
+      --border-secondary: rgba(255, 255, 255, 0.2);
+      --border-primary: rgba(255, 255, 255, 0.3);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: var(--bg-tertiary); color: var(--text-primary); min-height: 100vh; padding: 2rem 1.5rem; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  .container { max-width: 1400px; margin: 0 auto; }
+  .hdr { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .hdr h1 { font-size: 24px; font-weight: 500; margin-bottom: 4px; }
+  .hdr p { font-size: 14px; color: var(--text-secondary); }
+  .pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 999px; background: var(--bg-secondary); color: var(--text-secondary); }
+  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--border-radius-md); padding: 14px 16px; }
+  .stat-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .stat-val { font-size: 24px; font-weight: 500; }
+  .bar { height: 4px; background: var(--bg-secondary); border-radius: 999px; margin-top: 8px; overflow: hidden; }
+  .bar > div { height: 100%; background: var(--green); transition: width 0.3s; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; align-items: center; }
+  .filters label { font-size: 12px; color: var(--text-secondary); }
+  select, input[type="text"], input[type="date"], textarea { font-family: inherit; font-size: 13px; padding: 6px 10px; border: 0.5px solid var(--border-tertiary); border-radius: var(--border-radius-md); background: var(--bg-primary); color: var(--text-primary); outline: none; transition: border-color 0.15s; }
+  select:focus, input:focus, textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(55, 138, 221, 0.15); }
+  select { height: 32px; cursor: pointer; }
+  .filters .spacer { flex: 1; }
+  .filters .hint { font-size: 11px; color: var(--text-tertiary); }
+  .weeks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+  @media (max-width: 1100px) { .weeks { grid-template-columns: repeat(2, minmax(0, 1fr)); } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .weeks { grid-template-columns: 1fr; } body { padding: 1rem; } }
+  .week { background: var(--bg-secondary); border-radius: var(--border-radius-lg); padding: 12px; min-height: 200px; display: flex; flex-direction: column; gap: 10px; }
+  .week.current { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .week-hdr { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 2px 4px; }
+  .week-title { font-size: 14px; font-weight: 500; }
+  .week-sub { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+  .week-badge { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .b-done { background: #E1F5EE; color: #085041; }
+  .b-curr { background: #E6F1FB; color: #0C447C; }
+  .b-up { background: #F1EFE8; color: #444441; }
+  .task { background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); border-radius: var(--border-radius-md); padding: 10px 12px; font-size: 13px; }
+  .task-top { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; align-items: center; }
+  .tag { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .t-training { background: #EEEDFE; color: #3C3489; }
+  .t-project { background: #FAEEDA; color: #633806; }
+  .t-meeting { background: #FBEAF0; color: #72243E; }
+  .t-learning { background: #E1F5EE; color: #085041; }
+  .p-high { background: #FCEBEB; color: #791F1F; }
+  .p-medium { background: #FAEEDA; color: #633806; }
+  .p-low { background: #E6F1FB; color: #0C447C; }
+  .s-completed { background: #E1F5EE; color: #085041; }
+  .s-inprogress { background: #E6F1FB; color: #0C447C; }
+  .s-notstarted { background: #F1EFE8; color: #444441; }
+  .s-blocked { background: #FCEBEB; color: #791F1F; }
+  .task-title { font-size: 13px; font-weight: 500; line-height: 1.4; margin-bottom: 4px; word-wrap: break-word; }
+  .task-title.done { text-decoration: line-through; color: var(--text-secondary); }
+  .task-notes { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 8px; white-space: pre-wrap; word-wrap: break-word; }
+  .task-meta { display: flex; gap: 6px; flex-wrap: wrap; font-size: 11px; color: var(--text-tertiary); }
+  .task-actions { display: flex; gap: 4px; margin-top: 8px; justify-content: flex-end; }
+  .icon-btn { background: transparent; border: 0.5px solid var(--border-tertiary); border-radius: var(--border-radius-md); width: 28px; height: 28px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: var(--text-secondary); transition: all 0.15s; }
+  .icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+  .icon-btn.danger:hover { background: #FCEBEB; color: #791F1F; border-color: #F7C1C1; }
+  .status-toggle { cursor: pointer; transition: opacity 0.15s; }
+  .status-toggle:hover { opacity: 0.75; }
+  .add-btn { background: transparent; border: 1px dashed var(--border-secondary); border-radius: var(--border-radius-md); padding: 10px; font-size: 13px; color: var(--text-secondary); cursor: pointer; width: 100%; transition: all 0.15s; font-family: inherit; }
+  .add-btn:hover { background: var(--bg-primary); color: var(--text-primary); border-color: var(--border-primary); }
+  .toolbar-btn { background: transparent; border: 0.5px solid var(--border-secondary); border-radius: var(--border-radius-md); padding: 6px 12px; font-size: 12px; color: var(--text-secondary); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .toolbar-btn:hover { background: var(--bg-primary); color: var(--text-primary); }
+  .modal-bg { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--bg-primary); border-radius: var(--border-radius-lg); padding: 24px; width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; border: 0.5px solid var(--border-tertiary); }
+  .modal h2 { font-size: 18px; font-weight: 500; margin-bottom: 16px; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; font-weight: 500; }
+  .field input, .field select, .field textarea { width: 100%; }
+  .field textarea { min-height: 70px; resize: vertical; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+  .btn-primary { background: var(--text-primary); color: var(--bg-primary); border: 0.5px solid var(--text-primary); border-radius: var(--border-radius-md); padding: 8px 16px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary { background: transparent; color: var(--text-primary); border: 0.5px solid var(--border-secondary); border-radius: var(--border-radius-md); padding: 8px 16px; font-size: 13px; cursor: pointer; font-family: inherit; }
+  .btn-secondary:hover { background: var(--bg-secondary); }
+  .empty { text-align: center; font-size: 12px; color: var(--text-tertiary); padding: 20px 10px; }
+  .sync-status { font-size: 11px; color: var(--text-tertiary); }
+  .top-actions { display: flex; gap: 6px; align-items: center; }
+  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--text-primary); color: var(--bg-primary); padding: 8px 16px; border-radius: var(--border-radius-md); font-size: 13px; z-index: 2000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hdr">
+    <div>
+      <h1>4-week work plan</h1>
+      <p>Track your activities, trainings, projects, and meetings</p>
+    </div>
+    <div class="top-actions">
+      <button class="toolbar-btn" id="exportBtn" title="Download a backup JSON">↓ Export</button>
+      <button class="toolbar-btn" id="importBtn" title="Restore from backup">↑ Import</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" />
+      <button class="toolbar-btn" id="resetBtn" title="Reset to original data">⟲ Reset</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Total activities</div><div class="stat-val" id="st-total">0</div></div>
+    <div class="stat"><div class="stat-label">Completed</div><div class="stat-val" id="st-done">0</div></div>
+    <div class="stat"><div class="stat-label">In progress</div><div class="stat-val" id="st-prog">0</div></div>
+    <div class="stat"><div class="stat-label">Completion</div><div class="stat-val" id="st-pct">0%</div><div class="bar"><div id="st-bar" style="width:0%"></div></div></div>
+  </div>
+
+  <div class="filters">
+    <label>Filter:</label>
+    <select id="filterStatus">
+      <option value="all">All statuses</option>
+      <option value="notstarted">Not started</option>
+      <option value="inprogress">In progress</option>
+      <option value="completed">Completed</option>
+      <option value="blocked">Blocked</option>
+    </select>
+    <select id="filterType">
+      <option value="all">All types</option>
+      <option value="training">Training</option>
+      <option value="project">Project</option>
+      <option value="meeting">Meeting</option>
+      <option value="learning">Learning</option>
+    </select>
+    <span class="spacer"></span>
+    <span class="hint">Click status tag to cycle · pencil to edit</span>
+  </div>
+
+  <div class="weeks" id="weeks"></div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2 id="modalTitle">New activity</h2>
+    <div class="field">
+      <label>Activity name</label>
+      <input type="text" id="f-title" placeholder="e.g. Agile Scrum training on Udemy" />
+    </div>
+    <div class="field">
+      <label>Notes / description</label>
+      <textarea id="f-notes" placeholder="Optional notes, links, or details"></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Type</label>
+        <select id="f-type">
+          <option value="training">Training</option>
+          <option value="project">Project</option>
+          <option value="meeting">Meeting</option>
+          <option value="learning">Learning</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Priority</label>
+        <select id="f-priority">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Status</label>
+        <select id="f-status">
+          <option value="notstarted">Not started</option>
+          <option value="inprogress">In progress</option>
+          <option value="completed">Completed</option>
+          <option value="blocked">Blocked</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Due date (optional)</label>
+        <input type="date" id="f-due" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="btnCancel">Cancel</button>
+      <button class="btn-primary" id="btnSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  const STORAGE_KEY = 'ba_plan_v1';
+
+  const WEEKS = [
+    { n: 1, title: 'Week 1', range: '07 Apr – 13 Apr', status: 'completed' },
+    { n: 2, title: 'Week 2', range: '14 Apr – 20 Apr', status: 'current' },
+    { n: 3, title: 'Week 3', range: '21 Apr – 27 Apr', status: 'upcoming' },
+    { n: 4, title: 'Week 4', range: '28 Apr – 04 May', status: 'upcoming' }
+  ];
+
+  const SEED = [
+    { id: 'w1t1', week: 1, title: "'Business Analyst Blueprint' training on 100DaysOfCloud", notes: '', type: 'training', priority: 'high', status: 'completed', due: '' },
+    { id: 'w1t2', week: 1, title: "'Writing Effective User Stories' training on LinkedIn Learning", notes: '', type: 'training', priority: 'high', status: 'completed', due: '' },
+    { id: 'w1t3', week: 1, title: "'Agile Scrum Fundamentals' training on Udemy", notes: '', type: 'training', priority: 'high', status: 'completed', due: '' },
+    { id: 'w1t4', week: 1, title: 'Completed a task: creating 5 user stories', notes: '', type: 'project', priority: 'medium', status: 'completed', due: '' },
+    { id: 'w2t1', week: 2, title: "'Business Analyst Certificate' on Udemy", notes: '', type: 'training', priority: 'high', status: 'inprogress', due: '' },
+    { id: 'w2t2', week: 2, title: "'Agile Scrum Business Analyst' on Udemy", notes: '', type: 'training', priority: 'high', status: 'notstarted', due: '' },
+    { id: 'w2t3', week: 2, title: 'Dashboard creation for 4-week plan visibility', notes: '', type: 'project', priority: 'high', status: 'inprogress', due: '' },
+    { id: 'w2t4', week: 2, title: 'Excel tracker for weekly tasks', notes: '', type: 'project', priority: 'medium', status: 'notstarted', due: '' },
+    { id: 'w2t5', week: 2, title: 'Meeting with mentor to discuss plan', notes: '', type: 'meeting', priority: 'high', status: 'notstarted', due: '' },
+    { id: 'w2t6', week: 2, title: '5 new user stories in GWT format', notes: '', type: 'project', priority: 'medium', status: 'notstarted', due: '' }
+  ];
+
+  let tasks = [];
+  let editingId = null;
+  let editingWeek = null;
+  let filter = { status: 'all', type: 'all' };
+
+  const typeLabels = { training: 'Training', project: 'Project', meeting: 'Meeting', learning: 'Learning' };
+  const priorityLabels = { high: 'High', medium: 'Medium', low: 'Low' };
+  const statusLabels = { notstarted: 'Not started', inprogress: 'In progress', completed: 'Completed', blocked: 'Blocked' };
+  const nextStatus = { notstarted: 'inprogress', inprogress: 'completed', completed: 'notstarted', blocked: 'notstarted' };
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      tasks = raw ? JSON.parse(raw) : [...SEED];
+    } catch (e) { tasks = [...SEED]; }
+    if (!tasks.length) tasks = [...SEED];
+    save();
+  }
+
+  function save() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks)); } catch (e) {}
+  }
+
+  function uid() { return 'id_' + Math.random().toString(36).slice(2, 10); }
+
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function passesFilter(t) {
+    if (filter.status !== 'all' && t.status !== filter.status) return false;
+    if (filter.type !== 'all' && t.type !== filter.type) return false;
+    return true;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  function render() {
+    const total = tasks.length;
+    const done = tasks.filter(t => t.status === 'completed').length;
+    const inProg = tasks.filter(t => t.status === 'inprogress').length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+
+    document.getElementById('st-total').textContent = total;
+    document.getElementById('st-done').textContent = done;
+    document.getElementById('st-prog').textContent = inProg;
+    document.getElementById('st-pct').textContent = pct + '%';
+    document.getElementById('st-bar').style.width = pct + '%';
+
+    const weeksEl = document.getElementById('weeks');
+    let html = '';
+    WEEKS.forEach(w => {
+      const weekTasks = tasks.filter(t => t.week === w.n);
+      const weekDone = weekTasks.filter(t => t.status === 'completed').length;
+      const weekPct = weekTasks.length ? Math.round((weekDone / weekTasks.length) * 100) : 0;
+      const badge = w.status === 'current' ? '<span class="week-badge b-curr">Current</span>'
+                  : w.status === 'completed' ? '<span class="week-badge b-done">Complete</span>'
+                  : '<span class="week-badge b-up">Upcoming</span>';
+
+      html += '<div class="week' + (w.status === 'current' ? ' current' : '') + '">';
+      html += '  <div class="week-hdr">';
+      html += '    <div>';
+      html += '      <div class="week-title">' + w.title + '</div>';
+      html += '      <div class="week-sub">' + w.range + ' · ' + weekDone + '/' + weekTasks.length + '</div>';
+      html += '    </div>';
+      html += '    ' + badge;
+      html += '  </div>';
+      if (weekTasks.length) html += '  <div class="bar"><div style="width:' + weekPct + '%"></div></div>';
+
+      const visible = weekTasks.filter(passesFilter);
+      visible.forEach(t => {
+        const doneClass = t.status === 'completed' ? ' done' : '';
+        html += '<div class="task">';
+        html += '  <div class="task-top">';
+        html += '    <span class="tag t-' + t.type + '">' + typeLabels[t.type] + '</span>';
+        html += '    <span class="tag p-' + t.priority + '">' + priorityLabels[t.priority] + '</span>';
+        html += '    <span class="tag s-' + t.status + ' status-toggle" data-cycle="' + t.id + '" title="Click to cycle status">' + statusLabels[t.status] + '</span>';
+        html += '  </div>';
+        html += '  <div class="task-title' + doneClass + '">' + esc(t.title) + '</div>';
+        if (t.notes) html += '  <div class="task-notes">' + esc(t.notes) + '</div>';
+        if (t.due) html += '  <div class="task-meta"><span>Due ' + esc(t.due) + '</span></div>';
+        html += '  <div class="task-actions">';
+        html += '    <button class="icon-btn" data-edit="' + t.id + '" title="Edit">✎</button>';
+        html += '    <button class="icon-btn danger" data-del="' + t.id + '" title="Delete">✕</button>';
+        html += '  </div>';
+        html += '</div>';
+      });
+
+      if (weekTasks.length && !visible.length) html += '<div class="empty">No matching tasks</div>';
+      if (!weekTasks.length) html += '<div class="empty">No activities yet</div>';
+
+      html += '  <button class="add-btn" data-add="' + w.n + '">+ Add activity</button>';
+      html += '</div>';
+    });
+    weeksEl.innerHTML = html;
+
+    weeksEl.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click', e => openModal(null, parseInt(e.currentTarget.dataset.add))));
+    weeksEl.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', e => openModal(e.currentTarget.dataset.edit)));
+    weeksEl.querySelectorAll('[data-del]').forEach(b => b.addEventListener('click', e => delTask(e.currentTarget.dataset.del)));
+    weeksEl.querySelectorAll('[data-cycle]').forEach(b => b.addEventListener('click', e => cycleStatus(e.currentTarget.dataset.cycle)));
+  }
+
+  function openModal(id, week) {
+    editingId = id;
+    editingWeek = week;
+    document.getElementById('modalTitle').textContent = id ? 'Edit activity' : 'New activity · Week ' + week;
+    if (id) {
+      const t = tasks.find(x => x.id === id);
+      if (!t) return;
+      document.getElementById('f-title').value = t.title;
+      document.getElementById('f-notes').value = t.notes || '';
+      document.getElementById('f-type').value = t.type;
+      document.getElementById('f-priority').value = t.priority;
+      document.getElementById('f-status').value = t.status;
+      document.getElementById('f-due').value = t.due || '';
+    } else {
+      document.getElementById('f-title').value = '';
+      document.getElementById('f-notes').value = '';
+      document.getElementById('f-type').value = 'training';
+      document.getElementById('f-priority').value = 'medium';
+      document.getElementById('f-status').value = 'notstarted';
+      document.getElementById('f-due').value = '';
+    }
+    document.getElementById('modalBg').classList.add('open');
+    setTimeout(() => document.getElementById('f-title').focus(), 50);
+  }
+
+  function closeModal() {
+    document.getElementById('modalBg').classList.remove('open');
+    editingId = null;
+    editingWeek = null;
+  }
+
+  function saveModal() {
+    const title = document.getElementById('f-title').value.trim();
+    if (!title) { document.getElementById('f-title').focus(); return; }
+    const data = {
+      title,
+      notes: document.getElementById('f-notes').value.trim(),
+      type: document.getElementById('f-type').value,
+      priority: document.getElementById('f-priority').value,
+      status: document.getElementById('f-status').value,
+      due: document.getElementById('f-due').value
+    };
+    if (editingId) {
+      const i = tasks.findIndex(x => x.id === editingId);
+      if (i >= 0) tasks[i] = { ...tasks[i], ...data };
+    } else {
+      tasks.push({ id: uid(), week: editingWeek, ...data });
+    }
+    closeModal();
+    save();
+    render();
+  }
+
+  function delTask(id) {
+    const t = tasks.find(x => x.id === id);
+    if (!t) return;
+    if (!confirm('Delete "' + t.title + '"?')) return;
+    tasks = tasks.filter(x => x.id !== id);
+    save();
+    render();
+  }
+
+  function cycleStatus(id) {
+    const i = tasks.findIndex(x => x.id === id);
+    if (i < 0) return;
+    tasks[i].status = nextStatus[tasks[i].status] || 'notstarted';
+    save();
+    render();
+  }
+
+  function exportData() {
+    const blob = new Blob([JSON.stringify(tasks, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'work-plan-backup-' + new Date().toISOString().slice(0, 10) + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Backup downloaded');
+  }
+
+  function importData(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (!Array.isArray(parsed)) throw new Error('Invalid format');
+        if (!confirm('Replace current data with imported backup?')) return;
+        tasks = parsed;
+        save();
+        render();
+        showToast('Backup restored');
+      } catch (err) {
+        alert('Could not read backup file: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  function resetData() {
+    if (!confirm('Reset to original data? All your changes will be lost.')) return;
+    tasks = [...SEED];
+    save();
+    render();
+    showToast('Reset to defaults');
+  }
+
+  document.getElementById('btnCancel').addEventListener('click', closeModal);
+  document.getElementById('btnSave').addEventListener('click', saveModal);
+  document.getElementById('modalBg').addEventListener('click', e => { if (e.target.id === 'modalBg') closeModal(); });
+  document.getElementById('filterStatus').addEventListener('change', e => { filter.status = e.target.value; render(); });
+  document.getElementById('filterType').addEventListener('change', e => { filter.type = e.target.value; render(); });
+  document.getElementById('exportBtn').addEventListener('click', exportData);
+  document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+  document.getElementById('importFile').addEventListener('change', e => { if (e.target.files[0]) importData(e.target.files[0]); e.target.value = ''; });
+  document.getElementById('resetBtn').addEventListener('click', resetData);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Enter' && document.getElementById('modalBg').classList.contains('open') && e.target.tagName !== 'TEXTAREA') saveModal();
+  });
+
+  load();
+  render();
+})();
+</script>
+</body>
+</html>
